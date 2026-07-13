@@ -1,0 +1,191 @@
+<?xml version="1.0"?>
+<robot>
+
+<gazebo reference="body_link">
+    <mu1>0.2</mu1>
+    <mu2>0.2</mu2>
+    <material>Gazebo/Red</material>
+</gazebo>
+
+<gazebo reference="wheel1_link">
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+    <material>Gazebo/Yellow</material>
+</gazebo>
+
+<gazebo reference="wheel2_link"> 
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+    <material>Gazebo/Yellow</material>
+</gazebo>
+
+<gazebo reference="caster_link">
+    <mu1>0.000002</mu1>
+    <mu2>0.000002</mu2>
+    <material>Gazebo/Blue</material>
+</gazebo>
+
+
+<gazebo>
+<plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
+
+    <!-- wheels -->
+        <right_joint>wheel1_joint</right_joint>
+        <left_joint>wheel2_joint</left_joint>
+
+    <!-- kinematics -->
+        <wheel_separation>${2*s4}</wheel_separation>
+        <wheel_radius>${r}</wheel_radius>
+
+    <!-- limits -->
+        <max_linear_acceleration>10</max_linear_acceleration>
+
+    <!-- topic, frames, and odometry -->
+        <topic>cmd_vel</topic>
+        <tf_topic>/tf</tf_topic>
+        <odom_topic>odom</odom_topic>
+        <frame_id>odom</frame_id>
+        <child_frame_id>base_footprint</child_frame_id>
+        <odom_publisher_frequency>100</odom_publisher_frequency>
+
+</plugin>
+
+<!-- Joint state publisher -->
+<plugin filename="gz-sim-joint-state-publisher-system"
+  name="gz::sim::systems::JointStatePublisher">
+    <topic>joint_states</topic> <!-- from <ros><remapping> -->
+
+    <joint_name>wheel1_joint</joint_name>
+    <joint_name>wheel2_joint</joint_name>
+
+</plugin>
+
+</gazebo>
+
+<!-- Lidar sensor -->
+
+<gazebo>
+    <plugin
+        filename="gz-sim-sensors-system"
+        name="gz::sim::systems::Sensors">
+        <render_engine>ogre2</render_engine>
+    </plugin>
+
+</gazebo>
+
+<gazebo>
+  <plugin filename="gz-sim-pose-publisher-system"
+          name="gz::sim::systems::PosePublisher">
+    <publish_link_pose>false</publish_link_pose>
+    <publish_model_pose>true</publish_model_pose>
+    <use_pose_vector_msg>false</use_pose_vector_msg>
+    <static_publisher>false</static_publisher>
+    <update_frequency>50</update_frequency>
+  </plugin>
+</gazebo>
+
+<!-- IMU system plugin -->
+<gazebo>
+    <plugin filename="gz-sim-imu-system"
+            name="gz::sim::systems::Imu">
+    </plugin>
+</gazebo>
+
+<gazebo reference="lidar_link">
+    <sensor name="gpu_lidar" type="gpu_lidar">
+        <pose relative_to='lidar_link'>0 0 0 0 0 0</pose>
+      
+
+        <topic>scan</topic>
+        <update_rate>10</update_rate>
+        <gz_frame_id>lidar_link</gz_frame_id>
+
+        <lidar>
+            <scan>
+                <horizontal>
+                    <samples>540</samples>
+                    <resolution>1</resolution>
+                    <min_angle>-2.35619</min_angle>
+                    <max_angle>2.35619</max_angle>
+                </horizontal>
+            </scan>
+
+            <range>
+                <min>0.10</min>
+                <max>2.50</max>
+                <resolution>0.005</resolution>
+            </range>
+
+            <noise>
+                <type>gaussian</type>
+                <mean>0.0</mean>
+                <stddev>0.001</stddev>
+            </noise>
+        </lidar>
+
+        <always_on>1</always_on>
+        <visualize>1</visualize>
+
+    </sensor>
+</gazebo>
+
+<!-- ========================= -->
+<!-- IMU Sensor -->
+<!-- ========================= -->
+
+<gazebo reference="imu_link">
+  <sensor name="imu_sensor" type="imu">
+
+    <always_on>true</always_on>
+    <update_rate>50</update_rate>          <!-- Changed from 100 to 50 Hz -->
+    <visualize>false</visualize>
+    <topic>imu</topic>
+    <gz_frame_id>imu_link</gz_frame_id>   <!-- Added for ROS bridge -->
+
+    <imu>
+      <enable_orientation>true</enable_orientation>  <!-- Added -->
+      <orientation_reference_frame>
+        <localization>ENU</localization>
+      </orientation_reference_frame>
+
+      <angular_velocity>
+        <x><noise type="gaussian">
+          <mean>0.0</mean><stddev>0.00873</stddev>
+          <bias_mean>0.0000075</bias_mean><bias_stddev>0.0000008</bias_stddev>
+        </noise></x>
+        <y><noise type="gaussian">
+          <mean>0.0</mean><stddev>0.00873</stddev>
+          <bias_mean>0.0000075</bias_mean><bias_stddev>0.0000008</bias_stddev>
+        </noise></y>
+        <z><noise type="gaussian">
+          <mean>0.0</mean><stddev>0.00873</stddev>
+          <bias_mean>0.0000075</bias_mean><bias_stddev>0.0000008</bias_stddev>
+        </noise></z>
+      </angular_velocity>
+
+      <linear_acceleration>
+        <x><noise type="gaussian">
+         <mean>0.0</mean>
+         <stddev>0.0002</stddev>
+         <bias_mean>0.0001</bias_mean>
+         <bias_stddev>0.00001</bias_stddev>
+        </noise></x>
+        <y><noise type="gaussian">
+         <mean>0.0</mean>
+         <stddev>0.0002</stddev>
+         <bias_mean>0.0001</bias_mean>
+         <bias_stddev>0.00001</bias_stddev>
+        </noise></y>
+        <z><noise type="gaussian">
+         <mean>0.0</mean>
+         <stddev>0.0002</stddev>
+         <bias_mean>0.0001</bias_mean>
+         <bias_stddev>0.00001</bias_stddev>
+        </noise></z>
+      </linear_acceleration>
+    </imu>
+  </sensor>
+</gazebo>
+
+
+</robot>
